@@ -41,6 +41,7 @@ alias mygithint="cat ~/$hintPath/.git_hint"
 alias mysqlhint="cat ~/$hintPath/.mysqlhint"
 alias myyard="cat ~/.yard_hint"
 alias myrails_rabbit="cat ~/$hintPath/.rabbit_hint"
+alias myunderscorehint="cat ~/$hintPath/.underscore.js.hint"
 
 # ssh
 
