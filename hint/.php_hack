@@ -1,0 +1,59 @@
+■何かのキーでいい感じにソートしたい時
+    // 参考URL　http://net-labo.net/?p=155
+    $key_id = [];
+    foreach ($article['ArticleContent'] as $key => $value) {
+        $key_id[$key] = $value['order'];
+    }
+    array_multisort($key_id, SORT_ASC, $article['ArticleContent']);
+
+■現在日付から○日の取得
+    echo "1日前"   . date("Y/m/d", strtotime("-1 day"  ));
+    echo "1ヶ月前" . date("Y/m/d", strtotime("-1 month"));
+    echo "1年前"   . date("Y/m/d", strtotime("-1 year" ));
+    echo "1週間前" . date("Y/m/d", strtotime("-1 week" ));
+
+■指定日付から○日の取得
+    echo "1日前"   . date("Y/m/d", strtotime("2007/12/20 -1 day"  ));
+    echo "1ヶ月前" . date("Y/m/d", strtotime("2007/12/20 -1 month"));
+    echo "1年前"   . date("Y/m/d", strtotime("2007/12/20 -1 year" ));
+    echo "1週間前" . date("Y/m/d", strtotime("2007/12/20 -1 week" ));
+
+■Linuxタイムで時刻を出力
+    strtotime("2016/3/31")
+    strtotime("now")
+
+■JSON関連
+    Jsonテキスト→Jsonオブジェクト
+    json_decode ( string $json [, bool $assoc = false [, int $depth = 512 [, int $options = 0 ]]] )
+        -> JSON エンコードされた文字列を受け取り、それを PHP の変数に変換します。
+
+        パラメータ
+        json
+            デコード対象となる json 文字列。
+            ※この関数は UTF-8 でエンコードされた文字列でのみ動作します。
+        注意:
+            PHP の実装は、 » RFC 4627 の JSON のスーパーセットで、 スカラー型や NULL のエンコードやデコードにも対応しています。RFC 4627 では、 これらの値は配列やオブジェクトの内部でネストする場合にだけ対応しています。
+            このスーパーセットは、 » RFC 7159 (RFC 4627 を置き換えるもの) や » ECMA-404 における "JSON text" の拡張定義との整合性がありますが、 RFC 4627 に厳格に従った他の JSON パーサーとの相互運用性には注意しましょう。 単一のスカラー値をエンコードする際に、問題が出る可能性があります。
+        assoc
+            TRUE の場合、返されるオブジェクトは連想配列形式になります。
+        depth
+            ユーザー指定の再帰の深さ。
+        options
+            JSON デコードオプションのビットマスクです。現在サポートされるオプションは JSON_BIGINT_AS_STRING のみです (デフォルトでは、大きな整数値を float に変換します)。
+
+    Jsonオブジェクト→Jsonテキスト
+    json_encode
+    string json_encode ( mixed $value [, int $options = 0 [, int $depth = 512 ]] )
+        -> value を JSON 形式にした文字列を返します。
+
+        パラメータ
+        value
+            エンコードする値。 resource 型以外の任意の型を指定できます。
+            ※すべての文字列データは、UTF-8 エンコードされたいなければいけません。
+        注意:
+            PHP の実装は、 » RFC 4627 の JSON のスーパーセットで、 スカラー型や NULL のエンコードやデコードにも対応しています。RFC 4627 では、 これらの値は配列やオブジェクトの内部でネストする場合にだけ対応しています。
+            このスーパーセットは、 » RFC 7159 (RFC 4627 を置き換えるもの) や » ECMA-404 における "JSON text" の拡張定義との整合性がありますが、 RFC 4627 に厳格に従った他の JSON パーサーとの相互運用性には注意しましょう。 単一のスカラー値をエンコードする際に、問題が出る可能性があります。
+        options
+            JSON_HEX_QUOT, JSON_HEX_TAG, JSON_HEX_AMP, JSON_HEX_APOS, JSON_NUMERIC_CHECK, JSON_PRETTY_PRINT, JSON_UNESCAPED_SLASHES, JSON_FORCE_OBJECT, JSON_UNESCAPED_UNICODE からなるビットマスク。 各定数の意味については JSON 定数のページ に説明があります。
+        depth
+            最大の深さを設定します。正の数でなければいけません。

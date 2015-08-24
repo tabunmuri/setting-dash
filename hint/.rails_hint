@@ -1,0 +1,403 @@
+■ユーザデータを作る方法
+seed.rbに下記を貼り付けて実行すればOK
+    password = "portdevelop"
+    hash_password =Digest::SHA1.hexdigest("#{Rails.application.secrets[:salt]}#{password}")
+    Admin.regist("test", hash_password, hash_password)
+もしくは下記のSQL文を実行する
+    INSERT INTO `admins` (`id`, `name`, `password`, `created_at`, `created_time`, `created_user`, `deleted_at`, `deleted_time`, `deleted_user`, `updated_at`, `updated_time`, `updated_user`, `email`)
+VALUES (3, 'test', '676eb076516bef04e103f0a24375701ca2f37980', '2015-03-17 06:48:06', 1426574886, 1, NULL, NULL, NULL, '2015-03-17 06:48:06', 1426574886, 1, 'shunsuke.fujii@theport.jp');
+
+ちなみに、
+ID:test
+PASSWORD:portdevelop
+
+■Migrationの方法
+    rails generate migration <マイグレーションファイルのtitle>
+    rake db:migrate
+
+     - その他コマンド一覧
+    rake db:abort_if_pending_migrations
+        実行されていないmigrationを表示
+    rake db:migrate [VERSION=バージョン番号] [オプション]
+        db/migrate内のスクリプトファイルからdatabaseにテーブル作成
+    rake db:migrate:down
+        指定したmigrationファイルのself.downメソッドを実行
+    rake db:migrate:redo [STEP=ステップ数]
+        指定したmigrationファイルのself.downメソッドを実行
+    rake db:migrate:reset
+        databaseを一度削除してもう一度作成し、db:migrate実行
+    rake db:mgrate:up
+        指定したmigrationファイルのself.upメソッドを実行
+
+    ■ちょっとコードを試してみたい時
+        irb
+            どこでもrubyが試せるよ
+        rails c
+            どこでもrailsが試せるよ
+        rails c --sandbox
+            どこでもrailsが試せるよ　かつ、ひと通り実行したmysqlへの変更をロールバックしてくれる
+
+■rubyの記法
+    # 配列作成
+        [,]
+        %w[a b]
+        %w[#{a} b]
+
+    # 要素の取り出し
+        [x]
+        first
+        last
+        max
+        min
+        index       引数と同じ 最初のindexを返す
+        rindex      引数と同じ 最後のindexを返す
+        values_at   複数引数indexの要素を返す
+
+    # 要素の数を取得
+        length
+        size
+
+    # 配列結合
+        concat
+
+    # 繰り返し
+        *
+
+    # 配列の抜き出し
+        [a..b]     index範囲
+        [a...b]    index範囲 bは含まない ...
+        [a,b]      indexからb個抜き出し
+        take(x)    index最初からx個抜き出し
+        drop(x)    index最初からx個除外
+
+    # 要素の追加
+        push       配列の最後に追加 破壊的method
+        <<         push の別名
+        unshift    配列の先頭に追加
+        insert     index直前に挿入
+
+    # 要素の移動
+        rotate     引数のindexを先頭に移動
+    # 要素の削除
+        pop        配列の最後を削除 引数は要素個数
+        shift      配列の先頭を削除
+        clear      空にする
+        delete     引数と一致する要素を削除  破壊的method
+        delete_at  引数のindexを削除         破壊的method
+        delete_if  ブロックの条件で削除      破壊的method
+
+    # 多重配列検索 (hashのほうが実行処理が早い)
+        assoc      多重配列の第一要素をkeyとして検索
+        rassoc     多重配列の第ニ要素をkeyとして検索
+
+    # ループ処理
+        each         昇順
+        reverse_each 降順
+        for
+        each_index   indexに対し昇順
+
+    # 重複削除
+        uniq
+
+    # ソート
+        sort
+        sort_by    ブロック利用ソート
+
+    # 反転
+        reverse
+
+    # シャフル
+         shuffle
+         sample     ruby 1.9から引数で要素数を指定
+
+    # 同じ値で埋める
+         fill
+
+    # 多重配列の単一配列化  平滑
+        flatten
+
+    # 配列を文字列にする
+        join
+
+    # 二次元配列の行と列を入れ替え
+        transpose
+
+    # 集合演算
+        &  and
+        |  or
+        -  除外
+
+
+    # -*- coding: utf-8 -*-    
+    # 配列作成
+        [1,2,3,4]
+
+    # 文字の場合 %w %W を使うとスペース区切り
+        %w[a b c\ d]#=> ["a", "b", "c d"]
+        %W[#{'a'.upcase} b]     #=> ["A", "b"]
+
+
+    # hash作成
+        {:one => 1, :two => 2, :three => 3}
+
+        ※ ruby 1.9 から : で書ける
+        {one: 1, two: 2, three:  3}
+
+
+    # 多重代入
+        a, b    =  [1,2]
+        a, b, c =  [1,2]
+
+        a,  =[1,2] # カンマ以降は無視
+        a,* =[1,2,3,4]         # アスタはワイルドカード
+
+        a,*rest =[1,2,3,4]     # rest [2,3,4]
+        a,*rest,b =[1,2,3,4]   # rest [2,3]
+
+        a,(b,c) = [1,[2,3]]    # ()付きの多重代入はネストした配列分解
+
+
+   # 要素の取り出し
+        num = [1,2,3,4,5]
+        num[0]          #=> 1
+        num.first       #=> 1
+        num.last        #=> 5
+        num[-1]         #=> 5   -をつけると最後
+
+
+
+        a = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+        a.max           #=> 9
+        a.min           #=> 1
+
+        a.index 9       #=> 5
+        a.rindex 9      #=> 14
+
+        a.values_at(0,1)     #=> [3, 1]
+
+
+
+
+        h = {:one => 1, :two => 2, :three => 3}
+        p h[:one]       #=> 1
+
+    # 要素の変更
+        num = [1,2,3,4,5]
+        num[0] = 10
+        num[0]  #=> 10になる
+
+        h = {:one => 1, :two => 2, :three => 3}
+        h[:three] = 10
+        h[:three]        #=> 10
+
+        h[:three]  = 1   #=> 11
+
+
+    # 要素の数を取得 length size
+        num = [1,2,3,4,5]
+        num.length      #=> 5
+        num.size        #=> 5
+
+
+    # 配列結合  
+        a1 = [1,2,3]
+        a2 = [4,5,6]
+        a1   a2       #=> [1, 2, 3, 4, 5, 6]
+
+    # ループの配列結合 concat    メモリ効率UP
+        all = []
+        [a1,a2].each { |a|   all.concat a }
+        all    #=> [1, 2, 3, 4, 5, 6]
+
+
+    # 繰り返し *
+        a1 = [1,2,3]
+        a1 * 3      #=> [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+        a1 * ","  #=> "1,2,3"  文字列指定だとjoin
+
+
+    # 配列の抜き出し
+    # [a..b]   index範囲
+    # [a...b]  index範囲 bは含まない ...
+    # [a,b]    indexからb個抜き出し
+    # take(x)  index最初からx個抜き出し
+    # drop(x)  index最初からx個除外
+    
+        a = [1, 2, 3, 4, 5, 6]
+        a[1..-1]    #=> [2, 3, 4, 5, 6]
+        a[3..5]     #=> [4, 5, 6]
+        a[3...5]    #=> [4, 5]
+        a[3,2]      #=> [4, 5]
+        a.take(2)   #=> [1, 2]
+        a.drop(2)   #=> [3, 4, 5, 6]
+
+
+    # 要素の追加
+    # push        配列の最後に追加 破壊的method
+    # <<          push の別名
+    # unshift     配列の先頭に追加
+    # insert      index直前に挿入
+        a = [1]
+        a.push 2 #=> [1, 2]
+        a        #=> [1, 2]
+        a.push 3,4           #=>[1, 2, 3, 4]
+        a.unshift -1,0       #=> [-1, 0, 1, 2, 3, 4]
+        p a.insert(2,"a","b")  #=> [-1, 0, "a", "b", 1, 2, 3, 4]
+
+
+    # 要素の移動
+    # rotate
+        a = [ "a", "b", "c", "d" ]
+        a.rotate         # => ["b", "c", "d", "a"]
+        a    # => ["a", "b", "c", "d"]
+        a.rotate(2)      # => ["c", "d", "a", "b"]
+        a.rotate(-1)     # => ["d", "a", "b", "c"]
+        a.rotate(-3)     # => ["b", "c", "d", "a"]
+
+
+    # 要素の削除
+    # pop        配列の最後を削除 引数は要素個数
+    # shift      配列の先頭を削除
+    # clear      空にする
+    # delete     引数と一致する要素を削除  破壊的method
+    # delete_at  引数のindexを削除         破壊的method
+    # delete_if  ブロックの条件で削除      破壊的method
+        a = [-1, 0, 1, 2, 3, 4]
+        a.pop       #=> 4
+        a           #=> [-1, 0, 1, 2, 3]
+        a.pop 2     #=> [2, 3]
+        a           #=> [-1, 0, 1]
+        a.shift     #=> -1
+        a           #=> [0, 1]
+
+        a.clear     #=> []
+        a           #=> []
+
+        a = [-1, 0, 1, 2, 3, 4]
+        a.delete -1    #=> -1
+        a  #=>[0, 1, 2, 3, 4]
+        a.delete "a"   #=> nil   ない場合
+
+        a.delete_at 0  #=> 0
+        a  #=> [1, 2, 3, 4]
+
+
+        a.delete_if{ |n| n % 2 == 0 }  #=> [1, 3]
+        a      #=> [1, 3]
+
+
+    # 多重配列 (hashのほうが実行処理が早い)
+    # assoc  多重配列の第一要素をkeyとして検索
+    # rassoc 多重配列の第ニ要素をkeyとして検索
+        a = [["one",1,"hello"],["two",2,"world"],["three",3,"hoge"]]
+        a.assoc "one"    #=> ["one", 1, "hello"]
+        a.assoc 1        #=> nil
+
+        a.rassoc 2       #=> ["two", 2, "world"]
+        a.rassoc "two"   #=> nil
+        a.rassoc "world" #=> nil
+
+
+    # ループ処理
+    # each         昇順
+    # reverse_each 降順
+    # for
+    # each_index   indexに対し昇順
+
+        a = %w[foo bar baz hoge fuga ]
+        a.each { |e|   print e," " }
+        #=> foo bar baz hoge fuga 
+
+        a.reverse_each { |e|   print e," " }
+        #=> fuga hoge baz bar foo 
+
+        for e in a
+            print e, " "
+        end
+        #=> foo bar baz hoge fuga
+
+    # ネストした場合 ブロックで簡単に取り出せる
+        a = [[1 ,["one","eins" ]], [2 ,["two","zwei" ]] ,[3 ,["three","drei" ]]]
+        a.each do |n,j|
+            print "#{n}  #{j} \n"
+        end
+        #=> 1  ["one", "eins"] 
+        #=> 2  ["two", "zwei"] 
+        #=> 3  ["three", "drei"] 
+
+
+    # 重複削除
+        a = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+        a.uniq
+        #=> [3, 1, 4, 5, 9, 2, 6, 8, 7]
+
+    # ソート 昇順
+        a = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+        a.sort
+        #=> [1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 7, 8, 9, 9, 9]
+
+    # ソート 降順
+        a = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+        a.sort.reverse
+        #=> [9, 9, 9, 8, 7, 6, 5, 5, 5, 4, 3, 3, 2, 1, 1]
+
+    # 反転 reverse
+        a = [0,1,2,3,4,5]
+        p a.reverse  #=> [5, 4, 3, 2, 1, 0]
+
+    # 文字列ソート
+        a = ["9", "7", "10", "11", "8"]
+        a.sort_by{|x| x.to_i }
+        #=> ["7", "8", "9", "10", "11"]
+
+    # ２次元配列のソート
+         a = [[1,5], [1,2], [1,9], [2,2], [2,9],[7,5],[7,0]]
+
+    #[昇順,降順]
+        p a.sort_by{|i| [i[0],-i[1]] }
+        #=> [[1, 9], [1, 5], [1, 2], [2, 9], [2, 2], [7, 5], [7, 0]]
+
+    #[降順,昇順]
+        p a.sort_by{|i| [-i[0],i[1]] }
+        #=> [[7, 0], [7, 5], [2, 2], [2, 9], [1, 2], [1, 5], [1, 9]]
+
+    # シャフル
+        a = [3,1,4,1,5,9,2,6,5,3,5,8,9,7,9]
+        a.shuffle
+        #=> [1, 7, 9, 5, 2, 3, 5, 9, 4, 6, 8, 1, 9, 5, 3]
+
+        a.sample   #=> 3
+        p a.sample #=> [4, 5, 7]  ruby 1.9から
+
+    # 同じ値で埋める fill
+        a = %w[q w e r t y]
+
+        a.fill "X"           #=> ["X", "X", "X", "X", "X", "X"]
+        a.fill(0..2){"Y"}    #=> ["Y", "Y", "Y", "X", "X", "X"]
+        a.fill(0...2){"Z"}   #=> ["Z", "Z", "Y", "X", "X", "X"]
+        a.fill(0,3){"A"}     #=> ["A", "A", "A", "X", "X", "X"]
+
+    # 多重配列の単一配列化  平滑 flatten
+        a = [1 , [2,3]]
+        a.flatten     #=> [1, 2, 3]
+
+    # 配列を文字列にする join
+        a = [0,1,2,3,4,5]
+        a.join       #=> "012345"
+        p a.join "-" #=> "0-1-2-3-4-5"
+
+    # 二次元配列の行と列を入れ替え transpose
+        a = %w["a1" "a2" "a3"]
+        b = %w["b1" "b2" "b3"]
+        c = %w["c1" "c2" "c3"]
+        list = [a,b,c]
+        list.transpose
+        #=> [["\"a1\"", "\"b1\"", "\"c1\""], ["\"a2\"", "\"b2\"", "\"c2\""], ["\"a3\"", "\"b3\"", "\"c3\""]]
+
+    # 集合演算
+        a = %w[a b c d e f g ]
+        a & %w[a c]   #=> ["a", "c"]
+        a | %w[h i]   #=> ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
+        a - %w[a c]   #=> ["b", "d", "e", "f", "g"]
+        %w[a a a b b c c] - %w[a ] #=> ["b", "b", "c", "c"]

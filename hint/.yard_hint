@@ -1,0 +1,49 @@
+YARD よく使うタグ一覧
+
+(データ/型/名前/説明の書き方)
+# @タグ [型] <名前> <説明>
+
+(例)
+# @param  [Array]  arr 表示したい配列
+# @return [String] 空白を除去した文字列
+@params   メソッドに渡す引数の説明
+@raise    メソッドで発生しえる例外クラスの説明
+@return   メソッドの返り値の説明
+@option メソッドに渡すオプションハッシュ引数の説明
+
+# @param       [Hash] opts the options to create a message with.
+# @option opts [String] :subject The subject
+# @option opts [String] :from ('nobody') From address
+# @option opts [String] :to Recipient email
+# @option opts [String] :body ('') The email's body
+def send_email(opts = {}) end
+@overload 複数の引数のパターンがある場合にif文っぽく使う
+
+# @overload set(key, value)
+#   Sets a value on key
+#   @param [Symbol] key describe key param
+#   @param [Object] value describe value param
+#   @overload set(value)
+#   Sets a value on the default key +:foo+
+#   @param [Object] value describe value param
+def set(*args) end
+@example 直下の説明がサンプルコードであることを示す
+
+# @example Reverse a String
+#   "mystring".reverse #=> "gnirtsym"
+def reverse; end
+@see URLや他のオブジェクトを書くとリンクになる
+
+# Synchronizes system time using NTP.
+# @see http://ntp.org/documentation.html NTP Documentation
+# @see NTPHelperMethods
+class NTPUpdater; end
+@note オブジェクトを使うときに注意して欲しい点を説明
+
+# @note This method should only be used in outer space.
+def eject; end
+(中括弧)
+{xxx} => リンクとみなす
+
+(例)
+# 詳細は、{http://rubydoc.info/docs/yard/0.7.2/file/docs/Tags.md Yardのタグ説明} を参照

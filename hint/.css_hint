@@ -1,0 +1,115 @@
+■scssの設定ファイル
+    config.rb
+    --------------------------------------------------------------------------------
+    # Require any additional compass plugins here.
+
+    # Set this to the root of your project when deployed:
+    http_path = "./"
+    css_dir = "./css"
+    sass_dir = "./scss"
+    images_dir = "./ima"
+    javascripts_dir = "./js"
+
+    # You can select your preferred output style here (can be overridden via the command line):
+    # output_style = :compressed
+    output_style = :nested
+    # To enable relative paths to assets via compass helper functions. Uncomment:
+    # relative_assets = true
+
+    # To disable debugging comments that display the original location of your selectors. Uncomment:
+    line_comments = false
+
+    # If you prefer the indented syntax, you might want to regenerate this
+    # project again passing --syntax sass, or you can uncomment this:
+    # preferred_syntax = :sass
+    # and then run:
+    # sass-convert -R --from scss --to sass sass scss && rm -rf sass && mv scss sass
+    --------------------------------------------------------------------------------
+
+■reset.css
+    @charset "UTF-8";
+    /* リセット用CSSをインポート */
+    @import "compass/reset/";
+
+■clearfix
+    @charset "UTF-8";
+    @import "compass/utilities/general/clearfix";
+    
+    使う時
+        @include clearfix;
+
+■mediaQuery一覧
+    属性                    結果
+    min-width               ブラウザの幅がクエリに定義された値より広い場合にルールが適用されます。
+    max-width               ブラウザの幅がクエリに定義された値より狭い場合にルールが適用されます。
+    min-height              ブラウザの高さがクエリに定義された値より高い場合にルールが適用されます。
+    max-height              ブラウザの高さがクエリに定義された値より低い場合にルールが適用されます。
+    orientation=portrait    ブラウザの高さが、幅と同じかそれ以上の場合にルールが適用されます。
+    orientation=landscape   ブラウザの幅の値が、高さよりも大きい場合にルールが適用されます。
+
+    $middleWidth:720px;
+    $smallWidth:360px;
+    @media only screen and (min-width: $middleWidth + 1px) {
+    }
+    @media only screen and (min-width:$smallWidth + 1px) and (max-width: $middleWidth) {
+    }
+    @media only screen and (min-width:0px) and (max-width: $smallWidth) {
+    }
+
+■Fountation用のCDN
+    <link rel="stylesheet" href="http://cdn.foundation5.zurb.com/foundation.css" />
+    <script src="http://cdn.foundation5.zurb.com/foundation.js"></script>
+■Foundation用SCSS記述
+    http://foundation.zurb.com/docs/media-queries.html
+
+    ---------宣言----------
+    // Here we define the lower and upper bounds for each media size
+    $small-range: (0em, 40em); /* 0, 640px */
+    $medium-range: (40.063em, 64em); /* 641px, 1024px */
+    $large-range: (64.063em, 90em); /* 1025px, 1440px */
+    $xlarge-range: (90.063em, 120em); /* 1441px, 1920px */
+    $xxlarge-range: (120.063em); /* 1921px */
+
+    // foundation boundary width
+    $small-width:640px;
+    $medium-width:1024px;
+    $large-width:1440px;
+    $xlarge-width:1920px;
+
+    // Media Queries
+    $screen: "only screen" !default;
+
+    $landscape: "#{$screen} and (orientation: landscape)" !default;
+    $portrait: "#{$screen} and (orientation: portrait)" !default;
+
+    $small-up: $screen !default;
+    $small-only: "#{$screen} and (min-width:0px) and (max-width: #{$small-width})";
+
+    $medium-up: "#{$screen} and (min-width:#{$small-width + 1px})";
+    $medium-only: "#{$screen} and (min-width:#{$small-width + 1px}) and (max-width:#{$medium-width}) ";
+
+    $large-up: "#{$screen} and (min-width:#{$medium-width + 1px})";
+    $large-only: "#{$screen} and (min-width:#{$medium-width + 1px}) and (max-width:#{$large-width}) ";
+
+    $xlarge-up: "#{$screen} and (min-width:#{$large-width + 1px})";
+    $xlarge-only: "#{$screen} and (min-width:#{$large-width + 1px}) and (max-width:#{$xlarge-width}) ";
+
+    $xxlarge-up: "#{$screen} and (min-width:#{lower-bound($xxlarge-range)})" !default;
+    $xxlarge-only: "#{$screen} and (min-width:#{$xlarge-width + 1px})";
+    --------------------
+
+    メディアクエリ
+    @media #{$small-up} { }
+    @media #{$small-only} { }
+
+    @media #{$medium-up} { }
+    @media #{$medium-only} { }
+
+    @media #{$large-up} { }
+    @media #{$large-only} { }
+
+    @media #{$xlarge-up} { }
+    @media #{$xlarge-only} { }
+
+    @media #{$xxlarge-up} { }
+    @media #{$xxlarge-only} { }

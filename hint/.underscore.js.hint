@@ -1,0 +1,698 @@
+■イントロダクション 
+    UndersocreはJavaScript用のユーティリティベルトライブラリで、Prototype.js(またはRuby)のような沢山の関数型プログラミングサポートを提供しますが、JavaScriptの組み込みオブジェクトは一切拡張していません。jQuery製のタキシードと、Backbone.js製のサスペンダーと一緒に着るネクタイであります。
+    Underscoreは関数型の常連： map、 select、 invoke — や、もっと特化したヘルパー： 関数バインド、JavaScriptテンプレート、テスト用の深い等価性などなどの、両者をサポートする80余りの関数を提供します。もし存在する場合、組み込み関数に委任するので、モダンブラウザはネイティブ実装の forEach 、 map 、 reduce 、 filter 、 every 、 some 、 や indexOf を使用します。
+    閲覧用に完全なテストとベンチマークを含んでいます。
+    また注釈付きのソースコードも全て読む事ができます。
+    プロジェクトはGitHubでホスティングされています。バグレポートや仕様の議論はissuesページ、#documentcloudeチャンネルのFreenood、や@documentcloudeへツイートしてください。
+    UnderscoreはDocumentCloudのオープンソースコンポーネントです
+
+■コレクション関数(配列またはオブジェクト)
+
+    each _.each(list, iterator, [context]) Alias: forEach
+        list の要素を繰り返して、それぞれの番で iterator 関数を動作させます。 iterator は 引数に渡されていれば context オブジェクトから派生します。それぞれの iterator の呼び出しは3つの引数から呼ばれます。： (element, index, list)です。 list がJavaScriptオブジェクトの場合、 iterator の引数は(value, key, list)となります。ネイティブの forEach 関数が存在した場合には委譲します。
+    
+        _.each([1, 2, 3], alert);        
+            => alerts each number in turn...
+
+        _.each({one : 1, two : 2, three : 3}, alert);
+            => alerts each number value in turn...
+
+    map _.map(list, iterator, [context]) Alias: collect
+        変換関数( iterator )を通して、 list 中のそれぞれの値をマッピングした値を持つ新しい配列を生成します。ネイティブの map メソッドが存在する場合は、そちらを代わりに使用します。 list がJavaScriptオブジェクトの場合は、 iterator の引数は(value, key, list)になります。
+        
+        _.map([1, 2, 3], function(num){ return num * 3; });
+            => [3, 6, 9]
+        _.map({one : 1, two : 2, three : 3}, function(num, key){ return num * 3; });
+            => [3, 6, 9]
+
+    reduce _.reduce(list, iterator, memo, [context]) Alias: inject, foldl 
+        inject や foldl として知られてもいますが、 reduce は list の値を単一の値に要約します。 Memo は減算の最初の状態で、 iterator のそれぞれ成功した段階でこれを返します。イテレータは4つの引数を取ります：memo、valueと繰り返しのindex(またはキー)、そして最後にlist全ての参照です。
+    
+        var sum = _.reduce([1, 2, 3], function(memo, num){ return memo + num; }, 0);
+            => 6
+    
+        reduceRight _.reduceRight(list, iterator, memo, [context]) Alias: foldr 
+            右から結合するバージョンの reduce です。存在する場合は、JavaScript 1.8バージョンの reduceRight に委譲します。 Foldr は遅延評価がある言語ほどにはJavaScriptでは有用ではありません。
+            var list = [[0, 1], [2, 3], [4, 5]];
+            var flat = _.reduceRight(list, function(a, b) { return a.concat(b); }, []);
+            => [4, 5, 2, 3, 0, 1]
+    
+    find _.find(list, iterator, [context]) Alias: detect 
+        list 内のそれぞれの値を調べていき、テストをtrueで通った最初のもの( iterator )を返します。この関数は適合した要素を見つけ次第返し、全てのリストを探索はしません。
+    
+        var even = _.find([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; });
+            => 2
+        
+    filter _.filter(list, iterator, [context]) Alias: select 
+        list 内のそれぞれの値を調べていき、テストをtrueで通った全ての値( iterator )を返します。ネイティブの filter メソッドがある場合には委譲します。
+    
+        var evens = _.filter([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; });
+            => [2, 4, 6]
+
+    where _.where(list, properties) 
+        list 内のそれぞれの値を調べていき、 properties で列挙された中で全てのkey-valueペアを含んだ全ての値を配列として返します。
+
+        _.where(listOfPlays, {author: "Shakespeare", year: 1611});
+            => [{title: "Cymbeline", author: "Shakespeare", year: 1611}, {title: "The Tempest", author: "Shakespeare", year: 1611}]
+
+    reject _.reject(list, iterator, [context]) 
+        テストをtrueで通った要素( iterator )を除いた list 内の値を返します。 filter の反対です。
+
+        var odds = _.reject([1, 2, 3, 4, 5, 6], function(num){ return num % 2 == 0; });
+            => [1, 3, 5]
+
+    every _.every(list, iterator, [context]) Alias: all 
+        list 内の値が全て iterator のテストをtrueで通った場合に、 true を返します。存在する場合はネイティブメソッドの every に委譲します。
+
+        _.every([true, 1, null, 'yes'], _.identity);
+            => false
+
+    some _.some(list, [iterator], [context]) Alias: any 
+        list 内の値が1つでも iterator のテストをtrueで通った場合に、 true を返します。trueを返す要素が見つかった場合は、探索を中断して、リストを遡るのを止めます。
+
+        _.some([null, 0, 'yes', false]);
+            => true
+
+    contains _.contains(list, value) Alias: include 
+        value が list 内に存在する場合には true を返します。 list が配列の際には、内部的に indexOf が使用されます。
+
+        _.contains([1, 2, 3], 3);
+            => true
+
+    invoke _.invoke(list, methodName, [*arguments])
+        list 内のそれぞれの値に対して methodName で指定されたメソッドを呼び出します。 invoke に渡されたどんな追加引数もこのメソッド呼び出しに送られます。
+
+        _.invoke([[5, 1, 7], [3, 2, 1]], 'sort');
+            => [[1, 5, 7], [1, 2, 3]]
+
+    pluck _.pluck(list, propertyName) 
+        たぶん map のもっとも一般的なユースケース：プロパティの値のリストを抽出するための便利なバージョンです。
+
+        var stooges = [{name : 'moe', age : 40}, {name : 'larry', age : 50}, {name : 'curly', age : 60}];
+        _.pluck(stooges, 'name');
+            => ["moe", "larry", "curly"]
+
+    max _.max(list, [iterator], [context]) 
+        list 内の最大値を返します。 iterator が渡された場合、それぞれの値に対し、ランク付けするための基準を生成するために使用されます。
+
+        var stooges = [{name : 'moe', age : 40}, {name : 'larry', age : 50}, {name : 'curly', age : 60}];
+        _.max(stooges, function(stooge){ return stooge.age; });
+            => {name : 'curly', age : 60};
+
+    min _.min(list, [iterator], [context]) 
+        list 内の最小値を返します。 iterator が渡された場合、それぞれの値に対し、ランク付けするための基準を生成するために使用されます。
+
+        var numbers = [10, 5, 100, 2, 1000];
+        _.min(numbers);
+            => 2
+
+    sortBy _.sortBy(list, iterator, [context]) 
+        iterator を通して実行したそれぞれの値の結果を昇順でランク付けした list のソート済みのコピーを返します。イテレータには並べ替えに使うプロパティ名(例：length)を文字列で指定することもできます。
+
+        _.sortBy([1, 2, 3, 4, 5, 6], function(num){ return Math.sin(num); });
+            => [5, 4, 6, 3, 1, 2]
+
+    groupBy _.groupBy(list, iterator) 
+        iterator を通して実行したそれぞれの値の結果を使いグループ分けされたセットにコレクションを分割します。 iterator が関数の代わりに文字列の場合、それぞれの値に対して iterator で命名されたプロパティを使ってグループ分けします。
+
+        _.groupBy([1.3, 2.1, 2.4], function(num){ return Math.floor(num); });
+            => {1: [1.3], 2: [2.1, 2.4]}
+
+        _.groupBy(['one', 'two', 'three'], 'length');
+        => {3: ["one", "two"], 5: ["three"]}
+
+    countBy _.countBy(list, iterator)
+
+        グループ内のリストをソートして、各グループのオブジェクトの数を数えて返します。groupByに似ていますが、リストの値を返す代わりにグループ内の数を数えた値を返します。
+
+        _.countBy([1, 2, 3, 4, 5], function(num) {
+            return num % 2 == 0 ? 'even' : 'odd';
+        });
+        => {odd: 3, even: 2}
+
+        shuffle _.shuffle(list) 
+            Fisher-Yates shuffleを使いシャッフルされた list のコピーを返します。
+
+            _.shuffle([1, 2, 3, 4, 5, 6]);
+            => [4, 1, 6, 3, 5, 2]
+
+        toArray _.toArray(list) 
+            list (イテレートできるものなら何でも)を本当の配列に変換します。 arguments オブジェクトを変換するのに役立ちます。
+
+            (function(){ return _.toArray(arguments).slice(1); })(1, 2, 3, 4);
+            => [2, 3, 4]
+
+        size _.size(list) 
+            list 内の値の数を返します。
+
+            _.size({one : 1, two : 2, three : 3});
+            => 3
+
+■Array Functions
+    注: 全ての配列関数は、オブジェクトを引数に取ることができます。しかし、まばらな配列に対して実行できるようには設計されていません。
+
+    first _.first(array, [n]) Alias: head, take
+        配列の最初の要素を返します。 n を与えると、配列の最初の n 個の要素を返します。
+
+        _.first([5, 4, 3, 2, 1]);
+            => 5
+
+    initial _.initial(array, [n])
+        配列の最後の要素以外を返します。argumentsを引数に取る場合に特に便利です。 n を与えると、配列の最後の n 個の要素を返り値に含めません。
+
+        _.initial([5, 4, 3, 2, 1]);
+            => [5, 4, 3, 2]
+
+    last _.last(array, [n])
+        配列の最後の要素を返します。 n を与えると、配列の最後の n 個の要素を返します。
+
+        _.last([5, 4, 3, 2, 1]);
+            => 1
+
+    rest _.rest(array, [index]) Alias: tail, drop
+        配列の残りの要素を返します。 index を与えると、その index から前方にある配列の値を取得します。
+
+        _.rest([5, 4, 3, 2, 1]);
+            => [4, 3, 2, 1]
+
+    compact _.compact(array)
+        falseを振る舞う要素を除いた配列のコピーを返します。JavaScriptにおいて、false、null、0、""、undefined、そしてNaNはfalse値を振る舞います。
+
+        _.compact([0, 1, false, 2, '', 3]);
+            => [1, 2, 3]
+
+    flatten _.flatten(array, [shallow])
+        入れ子になった配列を平坦化します(入れ子はどんな深度でも可能です)。 shallow 引数を渡すと、入れ子の配列は第一階層のみ平坦化されます。
+
+        _.flatten([1, [2], [3, [[4]]]]);
+            => [1, 2, 3, 4];
+
+        _.flatten([1, [2], [3, [[4]]]], true);
+            => [1, 2, 3, [[4]]];
+
+    without _.without(array, [*values])
+        values引数で指定した値を配列から除いた配列のコピーを返します。
+
+        _.without([1, 2, 1, 0, 3, 1, 4], 0, 1);
+            => [2, 3, 4]
+
+    union _.union(*arrays)
+        渡された配列群から和集合を算出します: 1つないしそれ以上の配列にある、ユニークなアイテムが順番になったリストとなります。
+
+        _.union([1, 2, 3], [101, 2, 1, 10], [2, 1]);
+            => [1, 2, 3, 101, 10]
+
+    intersection _.intersection(*arrays)
+        すべての配列の共通集合となる値のリストを算出します。結果となる値はそれぞれの配列内に存在することになります。
+
+        _.intersection([1, 2, 3], [101, 2, 1, 10], [2, 1]);
+            => [1, 2]
+
+    difference _.difference(array, *others)
+        without 関数と似ていますが、other引数で指定した配列に存在しない値を返します。
+
+        _.difference([1, 2, 3, 4, 5], [5, 2, 10]);
+            => [1, 3, 4]
+
+    uniq _.uniq(array, [isSorted], [iterator]) Alias: unique
+        値の比較に"==="を使用し、ユニークな値を要素とする配列を返します。事前に配列がソートされていることがわかっていれば、 isSorted にtrueを与えることで、より高速に実行されます。ユニークな値を変形によって算出したい場合は iterator 引数に関数を渡して下さい。
+
+        _.uniq([1, 2, 1, 3, 1, 4]);
+            => [1, 2, 3, 4]
+
+    zip _.zip(*arrays)
+        それぞれの配列を同じ場所にある値を元に結合します。配列のインデックスを通じて強調している分離したデータソースを扱う場合に便利です。入れ子になった配列のマトリックスを使用する場合、 zip.apply を利用することで同様に結合することができます。
+
+        _.zip(['moe', 'larry', 'curly'], [30, 40, 50], [true, false, false]);
+            => [["moe", 30, true], ["larry", 40, false], ["curly", 50, false]]
+
+    object _.object(list, [values])
+        配列をオブジェクトに変換します。[key, value]のペアとなる1つのリスト、もしくはkeysのリストとvaluesのリスト、どちらかを引数として渡してください。
+
+        _.object(['moe', 'larry', 'curly'], [30, 40, 50]);
+            => {moe: 30, larry: 40, curly: 50}
+
+        _.object([['moe', 30], ['larry', 40], ['curly', 50]]);
+            => {moe: 30, larry: 40, curly: 50}
+
+    indexOf _.indexOf(array, value, [isSorted])
+        value引数で指定した値のある配列のインデックスを返します。配列に存在しない場合は-1を返します。ネイティブの indexOf 関数がある場合はそれを使用します。大きな配列を扱い場合、かつ配列がソートされている場合には、 isSorted に trueを与えることでより高速なバイナリサーチを行います。あるいは、第三引数に数字を渡すことでそのインデックス移行から探索を行います。
+
+        _.indexOf([1, 2, 3], 2);
+            => 1
+
+    lastIndexOf _.lastIndexOf(array, value, [fromIndex])
+        value引数で指定した値のある配列の最後のインデックスを取得します。配列中に存在しない場合-1を返します。ネイティブの lastIndexOf 関数がある場合はそれを使用します。 fromIndex を与えると、そのインデックスから探索をします。
+
+        _.lastIndexOf([1, 2, 3, 1, 2, 3], 2);
+            => 4
+
+    sortedIndex _.sortedIndex(list, value, [iterator])
+        value引数に渡された値がリストのソート済みの順序を保持できるようにインデックスのどの位置に挿入されるべきかをバイナリサーチを利用して測定します。 iterator が渡された場合、渡した値を含めて、それぞれの値のソート順序を算出します。
+
+        _.sortedIndex([10, 20, 30, 40, 50], 35);
+            => 3
+
+    range _.range([start], stop, [step])
+        柔軟に番号付けされた整数のリストを生成する関数です。eachとmapのループ内で便利に利用できます。start引数が省略された場合は0がデフォルト値、stepのデフォルト値は1となります。startからstopまでの、stepずつインクリメント（またはデクリメント）された数字の配列を返します。排他処理。
+
+        _.range(10);
+            => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        _.range(1, 11);
+            => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        _.range(0, 30, 5);
+            => [0, 5, 10, 15, 20, 25]
+        _.range(0, -10, -1);
+            => [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+        _.range(0);
+            => []
+
+■Function (uh, ahem) Functions
+
+    bind _.bind(function, object, [*arguments])
+        function を object にバインドします。つまりfunction が呼ばれるとき、 this が object の値になるということです。 任意で、それらをあらかじめ埋めておくために arguments を function にバインドすることができます。 これは、 partial application としても知られています。
+
+        var func = function(greeting){ return greeting + ': ' + this.name };
+        func = _.bind(func, {name : 'moe'}, 'hi');
+        func();
+            => 'hi: moe'
+
+    bindAll _.bindAll(object, [*methodNames])
+        methodNames によって特定される object に複数のメソッドをバインドし、それらが呼ばれる際にそのオブジェクトのコンテキスト上で実行されます。 これは、イベントハンドラとして使われるfunctionをバインドすることはとても便利ですが、一方で一切無駄な this として実行されます。 もし methodNames  が渡されなかった場合、オブジェクトのfunctionプロパティの全てがバインドされます。
+
+        var buttonView = {
+            label   : 'underscore',
+            onClick : function(){ alert('clicked: ' + this.label); },
+            onHover : function(){ console.log('hovering: ' + this.label); }
+        };
+        _.bindAll(buttonView);
+        jQuery('#underscore_button').bind('click', buttonView.onClick);
+            => When the button is clicked, this.label will have the correct value...
+
+    memoize .memoize(function, [hashFunction])
+        計算結果をキャッシュすることで、与えられた function をメモ化します。 これは、実行の遅い計算を早くするのに便利です。 任意の引数である hashFunction を渡されると、元の関数の引数をベースとして、その結果を格納するためのハッシュキーとして使われます。 hashFunction のデフォルト値は、単純に最初の引数となります。
+
+        var fibonacci = _.memoize(function(n) {
+            return n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2);
+        });
+
+    delay _.delay(function, wait, [*arguments])
+        setTimeout のように、 wait ミリセカンド経過した後に function を実行します。 任意の引数である arguments を渡した場合、それらは function が実行されるときに引き渡されます。
+
+        var log = _.bind(console.log, console);
+        _.delay(log, 1000, 'logged later');
+            => 'logged later' // Appears after one second.
+
+    defer _.defer(function, [*arguments])
+        現在のコールスタックが空になるまで function の呼び出しを遅延させます。 これは遅延なしで setTimeout を使うのに似ています。 これは、コストのかかる計算やまとまったHTMLレンダリングをUIスレッドを更新によってブロックしないようにするのに便利です。 任意の引数である arguments を渡した場合、それらは function が呼び出されるときに引き渡されます。
+
+        _.defer(function(){ alert('deferred'); });
+        // Returns from the function before the alert runs.
+
+    throttle _.throttle(function, wait)
+        新しくスロットル化されたバージョンの関数を作成して返します。 それは繰り返し呼び出されたときでも、実際には多くても wait ミリ秒に一度しか元の関数を呼び出しません。 これは、追いつかないくらいの速度で発生するイベントの速度を制御するのに便利です。
+
+        var throttled = _.throttle(updatePosition, 100);
+        $(window).scroll(throttled);
+
+    debounce _.debounce(function, wait, [immediate])
+        新しくデバウンスされたバージョンの関数を作成して返します。 最後に呼ばれてから wait ミリ秒経過するまでその関数の実行を遅らせます。 これは、入力がストップした 後に だけ実行される振る舞いを実装するのに便利です。例えば、Markdownのコメントのプレビューをレンダリングする、ウィンドウのリサイズ後のレイアウトの再計算、などです。
+        immediate パラメータに true を渡すと、 debounce がトリガする関数を後に実行する代わりに wait ミリ秒のインターバルの直前にトリガするようになります。 これは、アクシデントによりダブルクリックされたサブミットボタンの2回目のイベントの発火を避けたいような状況で便利です。
+
+        var lazyLayout = _.debounce(calculateLayout, 300);
+        $(window).resize(lazyLayout);
+
+    once _.once(function)
+        たった一度だけ呼ばれる関数を作成します。 変更のある関数を繰り返し呼び出しても影響がありません。元の呼び出しと同じ値が返されます。 これは、booleanのフラグを持って後にそれを確認する代わりに、初期化関数として使うのに便利です。
+
+        var initialize = _.once(createApplication);
+        initialize();
+        initialize();
+        // Application is only created once.
+
+    after _.after(count, function)
+        count 回実行されたあとに初めて実行されるような関数を作成します。 全ての同期呼び出しが完了されるのを確実に待ちたい場合など、非同期レスポンスをまとめるのに便利です。
+
+        var renderNotes = _.after(notes.length, render);
+        _.each(notes, function(note) {
+            note.asyncSave({success: renderNotes});
+        });
+        // renderNotes is run once, after all notes have saved.
+
+    wrap _.wrap(function, wrapper)
+        最初の function 引数を wrapper 関数の中にラップします。 これは wrapper 関数によって function が実行される前後に処理を実行させたり、引数を調整したり、 条件によってそれを実行したりすることができます。
+
+        var hello = function(name) { return "hello: " + name; };
+        hello = _.wrap(hello, function(func) {
+            return "before, " + func("moe") + ", after";
+        });
+        hello();
+            => 'before, hello: moe, after'
+
+    compose _.compose(*functions)
+        一連の functions を合成して返します。それぞれの関数はそれに続く関数の返り値を結果としてとります。 数式にすると、 f() と g() と h() を合成することで、 f(g(h())) が生成されます。
+
+        var greet    = function(name){ return "hi: " + name; };
+        var exclaim  = function(statement){ return statement + "!"; };
+        var welcome = _.compose(exclaim, greet);
+        welcome('moe');
+            => 'hi: moe!'
+
+■オブジェクト関数 
+
+    keys _.keys(object)
+        object のプロパティ名を全て探索する。
+
+        _.keys({one : 1, two : 2, three : 3});
+            => ["one", "two", "three"]
+
+    values _.values(object)
+        object のプロパティの値を全て返す。
+
+        _.values({one : 1, two : 2, three : 3});
+            => [1, 2, 3]
+
+    pairs _.pairs(object)
+        objectを [key, value] のペアになっているリストに変換する。
+
+        _.pairs({one: 1, two: 2, three: 3});
+            => [["one", 1], ["two", 2], ["three", 3]]
+
+    invert _.invert(object)
+        キーを値に、値をキーにした object のコピーを返す。 この関数が機能するためには、オブジェクトのすべての値がユニークでシリアライズ可能な文字列である必要があります。
+
+        _.invert({Moe: "Moses", Larry: "Louis", Curly: "Jerome"});
+            => {Moses: "Moe", Louis: "Larry", Jerome: "Curly"};
+
+    functions _.functions(object) Alias: methods
+        オブジェクトの全てのメソッド名のソートされたリストを返します。 すなわち、オブジェクトの全ての関数のプロパティ名のことです。
+
+        _.functions(_);
+            => ["all", "any", "bind", "bindAll", "clone", "compact", "compose" ...
+
+    extend _.extend(destination, *sources)
+        source オブジェクトの全プロパティを destination オブジェクトにコピーして、 destination オブジェクトを返します。 整理すると、二つめの引数の source は一つめの引数にある同じ名前のプロパティを上書きします。
+
+        _.extend({name : 'moe'}, {age : 50});
+            => {name : 'moe', age : 50}
+
+    pick _.pick(object, *keys)
+        ホワイトリストとして指定したキー(もしくは有効なキーの配列)の値だけ持つようにフィルタリングした object のコピーを返します。
+
+        _.pick({name : 'moe', age: 50, userid : 'moe1'}, 'name', 'age');
+            => {name : 'moe', age : 50}
+
+    omit _.omit(object, *keys)
+        ブラックリストとして指定したキー(もしくはキーの配列)を省略するようにフィルタリングした object のコピーを返します。
+
+        _.omit({name : 'moe', age : 50, userid : 'moe1'}, 'userid');
+            => {name : 'moe', age : 50}
+
+    defaults _.defaults(object, *defaults)
+        defaults オブジェクトにある値を object のnullとundefinedのプロパティに挿入し、その object を返します。 プロパティが挿入され次第、以降のdefaults引数は影響を受けません。
+
+        var iceCream = {flavor : "chocolate"};
+        _.defaults(iceCream, {flavor : "vanilla", sprinkles : "lots"});
+            => {flavor : "chocolate", sprinkles : "lots"}
+
+    clone _.clone(object)
+        object の浅いコピーをしたクローンを作成します。 ネストされたオブジェクトや配列は参照によるコピーで、複製されたものではありません。
+
+        _.clone({name : 'moe'});
+            => {name : 'moe'};
+
+    tap _.tap(object, interceptor)
+        interceptor に 割り込み処理 を差し込んでから object を返します。 このメソッドの主な目的は、チェーン内の途中の結果を操作するためにメソッドチェーンを利用することです。
+
+        _.chain([1,2,3,200])
+        .filter(function(num) { return num % 2 == 0; })
+        .tap(alert)
+        .map(function(num) { return num * num })
+        .value();
+            => // [2, 200] (alerted)
+            => [4, 40000]
+
+    has _.has(object, key)
+        objectに渡されたキーが含まれているかチェックします。 object.hasOwnProperty(key) と同じですが、誤って上書きされる 場合がある hasOwnProperty 関数への参照を安全に行えます。
+
+        _.has({a: 1, b: 2, c: 3}, "b");
+            => true
+
+    isEqual _.isEqual(object, other)
+        等しいものとするべきかどうか判断するために、2つのオブジェクト間で最適化された深い比較を行います。
+
+        var moe   = {name : 'moe', luckyNumbers : [13, 27, 34]};
+        var clone = {name : 'moe', luckyNumbers : [13, 27, 34]};
+        moe == clone;
+            => false
+        _.isEqual(moe, clone);
+            => true
+
+    isEmpty _.isEmpty(object)
+        object に値が含まれていない場合、 true を返します。
+
+        _.isEmpty([1, 2, 3]);
+            => false
+        _.isEmpty({});
+            => true
+
+    isElement _.isElement(object)
+        object がDOM要素の場合、 true を返します。
+
+    _.isElement(jQuery('body')[0]);
+        => true
+
+    isArray _.isArray(object)
+        object が配列の場合、 true を返します。
+
+        (function(){ return _.isArray(arguments); })();
+            => false
+        _.isArray([1,2,3]);
+            => true
+
+    isObject _.isObject(value)
+        value がオブジェクトの場合、 true を返します。 注：JavaScriptの配列と関数はオブジェクトで、(普通の)文字列や整数はオブジェクトではありません。
+
+        _.isObject({});
+            => true
+        _.isObject(1);
+            => false
+
+    isArguments _.isArguments(object)
+        object がArgumentsオブジェクトの場合、 true を返します。
+
+        (function(){ return _.isArguments(arguments); })(1, 2, 3);
+            => true
+        _.isArguments([1,2,3]);
+            => false
+
+    isFunction _.isFunction(object)
+        object が関数の場合、 true を返します。
+
+        _.isFunction(alert);
+            => true
+
+    isString _.isString(object)
+        object が文字列の場合、 true を返します。
+
+        _.isString("moe");
+            => true
+
+    isNumber _.isNumber(object)
+        object が整数(NaN を含む)の場合、 true を返します。
+
+        _.isNumber(8.4 * 5);
+            => true
+
+    isFinite _.isFinite(object)
+        object が有限数の場合、 true を返します。
+
+        _.isFinite(-101);
+            => true
+
+        _.isFinite(-Infinity);
+            => false
+
+    isBoolean _.isBoolean(object)
+        object が true か false のどちらかの場合、 true を返します。
+
+        _.isBoolean(null);
+            => false
+
+    isDate _.isDate(object)
+        object が日付オブジェクトの場合、 true を返します。
+
+        _.isDate(new Date());
+            => true
+
+    isRegExp _.isRegExp(object)
+        object が正規表現オブジェクトの場合、 true を返します。
+
+        _.isRegExp(/moe/);
+            => true
+
+    isNaN _.isNaN(object)
+        object が NaN の場合、 true を返します。 注：この関数は、変数が undefined の時に true が返される組み込みの isNaN 関数と同じではありません。
+
+        _.isNaN(NaN);
+            => true
+        isNaN(undefined);
+            => true
+        _.isNaN(undefined);
+            => false
+
+    isNull _.isNull(object)
+        objectの 値 が null の場合、 true を返します。
+
+        _.isNull(null);
+            => true
+        _.isNull(undefined);
+            => false
+
+    isUndefined _.isUndefined(value)
+        value が undefined の場合、 true を返します。
+
+        _.isUndefined(window.missingVariable);
+            => true
+
+■Utility Functions 
+    noConflict _.noConflict()
+        競合以前の”_”変数に対するコントロールを提供します。 Underscore オブジェクトへの参照が返されます。
+
+        var underscore = _.noConflict();
+
+    identity _.identity(value)
+        引数として渡された値と同じ値を返します。数学的に表現すると f(x) = x となります。 この関数は役に立たないように見えますが、Underscore全体でデフォルトのイテレータとして使用しています。
+
+        var moe = {name : 'moe'};
+        moe === _.identity(moe);
+            => true
+
+    times _.times(n, iterator, [context])
+        渡された iterator 関数を n 回呼び出します。それぞれの iterator 呼び出しは、引数（context）の index と共に呼び出されます。
+        注：この例ではChaining構文を使用しています。
+
+        _(3).times(function(n){ genie.grantWishNumber(n); });
+
+    random _.random(min, max)
+        min 以上 max 以下の範囲でランダムな整数値を返します。引数を1つだけ渡した場合は、0 から渡された値までの数値を返します。
+
+        _.random(0, 100);
+            => 42
+
+    mixin _.mixin(object)
+        Underscoreはあなた独自のutility関数を含める形で拡張することを許しています。{name: function} ハッシュを満たすように定義することで、独自の関数をOOP（オブジェクト指向プログラミング）ラッパーのように、Underscoreオブジェクトへ追加できます。
+
+    _.mixin({
+        capitalize : function(string) {
+            return string.charAt(0).toUpperCase() + string.substring(1).toLowerCase();
+        }
+    });
+        _("fabio").capitalize();
+            => "Fabio"
+
+    uniqueId _.uniqueId([prefix])
+        クライアント側のモデルまたはDOM要素のいずれかが必要な、グローバルなユニークIDを生成します。引数に prefix を渡した場合、IDが後ろに付きます。
+
+        _.uniqueId('contact_');
+            => 'contact_104'
+
+    escape _.escape(string)
+        HTMLに挿入するため、次の文字列をエスケープします。 & 、 < 、 > 、 " 、 ' 、 /。
+
+        _.escape('Curly, Larry & Moe');
+            => "Curly, Larry &amp; Moe"
+
+    unescape _.unescape(string)
+        escape と反対で、上と対をなす文字列をエスケープされていない文字に置き換えます。 &amp; 、 &lt; 、 &gt; 、 &quot;、 &#x27; 、 &#x2F;
+
+        _.escape('Curly, Larry &amp; Moe');
+            => "Curly, Larry & Moe"
+
+    result _.result(object, property)
+        プロパティの値が関数の場合は、それを実行し、そうでなければプロパティ値を返します。
+
+        var object = {cheese: 'crumpets', stuff: function(){ return 'nonsense'; }};
+        _.result(object, 'cheese');
+            => "crumpets"
+        _.result(object, 'stuff');
+            => "nonsense"
+
+    template _.template(templateString, [data], [settings])
+        レンダリング用に評価するためJavaScriptテンプレートをコンパイルして関数化を行います。 JSONデータソースから複雑なHTMLの断片をレンダリングするために便利です。 template関数では <%= … %> と、任意のJavaScriptコードを実行することができる <% … %> とで変数を補間することができます。 変数の補間と同時にHTMLエンコードを行う場合には <%- … %> を利用してください。 template関数を評価する際はテンプレート側の変数に合致するプロパティを持つ data オブジェクトを渡してください。 1度しか利用しないテンプレートを書く場合に、 data オブジェクトを第二引数として渡すことで、 template を返す代わりにレンダリングをすぐに実行できます。 settings 引数は _.templateSettings でオーバーライドされたハッシュを含んでいる必要があります。
+
+        var compiled = _.template("hello: <%= name %>");
+        compiled({name : 'moe'});
+            => "hello: moe"
+
+        var list = "<% _.each(people, function(name) { %> <li><%= name %></li> <% }); %>";
+        _.template(list, {people : ['moe', 'curly', 'larry']});
+            => "<li>moe</li><li>curly</li><li>larry</li>"
+
+        var template = _.template("<b><%- value %></b>");
+        template({value : '<script>'});
+            => "<b>&lt;script&gt;</b>"
+            Javascriptコード内から print を使用することもできます。これは時に  <%= ... %> を使用するより便利です。
+
+        var compiled = _.template("<% print('Hello ' + epithet); %>");
+        compiled({epithet: "stooge"});
+            => "Hello stooge."
+            ERBスタイルのデリミタが好みではない場合、UnderscoreのtemplateSettingsにて、コードの置き換えを異なるシンボルを使って行うよう変更することができます。 interpolateは、一致したものを補完する正規表現式を定義してください（デフォルトは<%=  %>用）。 escapeは、HTMLエスケープした後の値を挿入する正規表現式を定義してください（デフォルトは<%-  %>用）。 evaluateは、結果文字列に挿入することなく評価される正規表現式を定義してください（デフォルトは<%  %>用）。 上の3つについて、それぞれ定義、省略することができます。 この例では、Mustache.jsスタイルのテンプレートを真似ています。
+
+        _.templateSettings = {
+            interpolate : /\{\{(.+?)\}\}/g
+        };
+
+        var template = _.template("Hello {{ name }}!");
+        template({name : "Mustache"});
+            => "Hello Mustache!"
+            デフォルトでは、 template の場所の値は、 with ステートメントによってローカルスコープの中のデータから探します。 ただし、variable を設定することで、単一の変数名を指定することができます。これにより、テンプレートがレンダリングするスピードを大幅に改善することができます。
+
+        _.template("Using 'with': <%= data.answer %>", {answer: 'no'}, {variable: 'data'});
+            => "Using 'with': no"
+            再現が難しいエラーをデバッグするときに、テンプレートをプリコンパイルすると、大きな助けとなるります。これは、プリコンパイルされたテンプレートが、クライアントでテンプレートがコンパイルされる際のエラーについて、行番号とスタックトレースを提供できるためです。 source プロパティは、コンパイルされたテンプレート上において、簡単にプリコンパイルする関数を利用するためのものです。
+
+        <script>
+            JST.project = <%= _.template(jstText).source %>;
+        </script>
+
+■Chaining
+    Underscoreは好みに応じてオブジェクト指向スタイル、関数スタイルとしても利用することができます。以下の2行のコードは数字のリストを2倍にするまったく同じ手法となります。
+
+    _.map([1, 2, 3], function(n){ return n * 2; });
+    _([1, 2, 3]).map(function(n){ return n * 2; });
+        chainの呼び出しは将来的にすべてのメソッドコールに対して内包されたオブジェクトを返すことになります。計算が終了した際は最終的な値を取得するのに value を利用してください。以下は歌詞の中の単語カウントを取得するために map/flatten/reduce をチェーンした例となります。
+
+    var lyrics = [
+        {line : 1, words : "I'm a lumberjack and I'm okay"},
+        {line : 2, words : "I sleep all night and I work all day"},
+        {line : 3, words : "He's a lumberjack and he's okay"},
+        {line : 4, words : "He sleeps all night and he works all day"}
+    ];
+
+    _.chain(lyrics)
+    .map(function(line) { return line.words.split(' '); })
+    .flatten()
+    .reduce(function(counts, word) {
+        counts[word] = (counts[word] || 0) + 1;
+        return counts;
+    }, {}).value();
+        => {lumberjack : 2, all : 4, night : 2 ... }
+    加えて配列のプロトタイプメソッドはチェーンされたUnderscoreオブジェクトを通してプロキシされています。そのため、チェーンに対して reverse や push を滑り込ませて、配列の変更を続けることもできます。
+
+    chain _.chain(obj)
+        内包されたオブジェクトを返します。このオブジェクトでメソッドを呼び出すと value が利用されるまでは内包されたオブジェクトを返し続けます。
+
+        var stooges = [{name : 'curly', age : 25}, {name : 'moe', age : 21}, {name : 'larry', age : 23}];
+        var youngest = _.chain(stooges)
+        .sortBy(function(stooge){ return stooge.age; })
+        .map(function(stooge){ return stooge.name + ' is ' + stooge.age; })
+        .first()
+        .value();
+            => "moe is 21"
+
+    value _(obj).value()
+        内包されたオブジェクトの値を抽出します。
+
+        _([1, 2, 3]).value();
+        => [1, 2, 3]
